@@ -102,7 +102,7 @@
     <div class="ctrl-grid">
       <div class="ctrl-box" style="border-top:3px solid #3a8fff">
         <h3 style="color:#3a8fff">Player 1 — Blue</h3>
-        <span class="k">W A S D</span> Move<br>
+        <span class="k">↑ ← ↓ →</span> Move<br>
         <span class="k">Space</span> &nbsp; Fire
       </div>
       <div class="ctrl-box" id="p2-box" style="border-top:3px solid #ff4433">
@@ -526,8 +526,8 @@ function computeAI(ai, player) {
 function startGame() {
   const p2Name = gameMode === '1p' ? 'CPU' : 'P2';
   tanks = [
-    new Tank(140, 290, 0,        C1, C1D, { up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', fire:'Space'   }, 'P1'),
-    new Tank(660, 290, Math.PI,  C2, C2D, { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', fire:'Enter' }, p2Name),
+    new Tank(140, 290, 0,        C1, C1D, { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', fire:'Space' }, 'P1'),
+    new Tank(660, 290, Math.PI,  C2, C2D, { up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', fire:'KeyF' }, p2Name),
   ];
   bullets = []; particles = [];
   roundEnding = false; roundWinner = null; roundEndTimer = 0; shakeAmt = 0;
@@ -762,7 +762,7 @@ function loop() {
 }
 
 // ─── Input ────────────────────────────────────────────────────────────────────
-const GAME_KEYS = new Set(['KeyW','KeyA','KeyS','KeyD','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter']);
+const GAME_KEYS = new Set(['KeyW','KeyA','KeyS','KeyD','KeyF','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight']);
 document.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (GAME_KEYS.has(e.code)) e.preventDefault();
@@ -782,7 +782,7 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
       p2Controls.innerHTML   = '<span style="color:#445">Controlled by AI</span>';
     } else {
       p2Label.textContent    = 'Player 2 — Red';
-      p2Controls.innerHTML   = '<span class="k">↑ ← ↓ →</span> Move<br><span class="k">Enter</span> &nbsp;&nbsp; Fire';
+      p2Controls.innerHTML   = '<span class="k">W A S D</span> Move<br><span class="k">F</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fire';
     }
   });
 });
