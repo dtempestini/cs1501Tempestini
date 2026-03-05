@@ -166,7 +166,7 @@ let keys         = {};
 
 // ─── Tank ─────────────────────────────────────────────────────────────────────
 class Tank {
-  constructor(x, y, angle, col, colD, ctrl, name) {
+  constructor(x, y, angle, col, colD, ctrl, name, absolute = false) {
     this.sx = x; this.sy = y; this.sa = angle;
     this.x = x; this.y = y; this.angle = angle;
     this.col = col; this.colD = colD;
@@ -177,6 +177,7 @@ class Tank {
     this.score = 0;
     this.flash = 0;
     this.smkTimer = 0;
+    this.absolute = absolute;
   }
 
   reset() {
@@ -192,15 +193,29 @@ class Tank {
 
     const get = (code) => override ? (override[code] || false) : (keys[code] || false);
 
-    if (get(this.ctrl.left))  this.angle -= ROT_SPD;
-    if (get(this.ctrl.right)) this.angle += ROT_SPD;
-
-    let spd = 0;
-    if (get(this.ctrl.up))   spd =  TANK_SPD;
-    if (get(this.ctrl.down)) spd = -TANK_SPD * 0.65;
-
-    this.x += Math.cos(this.angle) * spd;
-    this.y += Math.sin(this.angle) * spd;
+    if (this.absolute) {
+      // World-space movement: arrow = screen direction, tank auto-rotates to face movement
+      let mx = 0, my = 0;
+      if (get(this.ctrl.up))    my -= 1;
+      if (get(this.ctrl.down))  my += 1;
+      if (get(this.ctrl.left))  mx -= 1;
+      if (get(this.ctrl.right)) mx += 1;
+      const len = Math.hypot(mx, my);
+      if (len > 0) {
+        this.x += (mx / len) * TANK_SPD;
+        this.y += (my / len) * TANK_SPD;
+        this.angle = Math.atan2(my, mx);
+      }
+    } else {
+      // Classic tank controls: left/right rotate, up/down move forward/back
+      if (get(this.ctrl.left))  this.angle -= ROT_SPD;
+      if (get(this.ctrl.right)) this.angle += ROT_SPD;
+      let spd = 0;
+      if (get(this.ctrl.up))   spd =  TANK_SPD;
+      if (get(this.ctrl.down)) spd = -TANK_SPD * 0.65;
+      this.x += Math.cos(this.angle) * spd;
+      this.y += Math.sin(this.angle) * spd;
+    }
 
     // Border clamp
     this.x = clamp(this.x, TR, W - TR);
@@ -526,7 +541,7 @@ function computeAI(ai, player) {
 function startGame() {
   const p2Name = gameMode === '1p' ? 'CPU' : 'P2';
   tanks = [
-    new Tank(140, 290, 0,        C1, C1D, { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', fire:'Space' }, 'P1'),
+    new Tank(140, 290, 0,        C1, C1D, { up:'ArrowUp', down:'ArrowDown', left:'ArrowLeft', right:'ArrowRight', fire:'Space' }, 'P1', true),
     new Tank(660, 290, Math.PI,  C2, C2D, { up:'KeyW', down:'KeyS', left:'KeyA', right:'KeyD', fire:'KeyF' }, p2Name),
   ];
   bullets = []; particles = [];
